@@ -229,8 +229,9 @@ app.get("/agenda/", async (request, response) => {
 
 //API 4
 app.post("/todos/", async (request, response) => {
-  const { id, todo, priority, status, category, dueDate } = request.body;
   const requestBody = request.body;
+  const { id, todo, priority, status, category, dueDate } = requestBody;
+
   switch (true) {
     case requestBody.status !== undefined:
       updatedColumn = "Status";
@@ -244,8 +245,6 @@ app.post("/todos/", async (request, response) => {
         response.status(400);
         response.send(`Invalid Todo ${updatedColumn}`);
       }
-    case requestBody.todo !== undefined:
-      updatedColumn = "Todo";
     case requestBody.category !== undefined:
       updatedColumn = "Category";
       if (!validCategory.includes(requestBody.category)) {
@@ -258,19 +257,20 @@ app.post("/todos/", async (request, response) => {
         response.status(400);
         response.send(`Invalid ${updatedColumn}`);
       }
+      break;
   }
 
-  const createTodQuery = `
-    INSERT INTO 
-    todo (id, todo, priority, status, category, due_date)
-    VALUES(
-        ${id}, '${todo}', '${priority}', '${status}', '${category}', '${dueDate}'
-    )
-
-    `;
-
-  await db.run(createTodQuery);
   if (response.statusCode !== 400) {
+    const formattedDate = format(new Date(dueDate), "yyyy-MM-dd");
+    console.log(dueDate, formattedDate);
+    const createQuery = `
+    INSERT INTO todo (id, todo, priority, status, category, due_date) 
+    VALUES (
+        ${id}, '${todo}', '${priority}', '${status}', '${category}',
+        '${formattedDate}');
+    `;
+    await db.run(createQuery);
+
     response.send("Todo Successfully Added");
   }
 });
