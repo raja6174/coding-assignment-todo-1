@@ -349,7 +349,7 @@ app.put("/todos/:todoId/", async (request, response) => {
   }
 });
 
-//API 6
+//API 6 Delete
 app.delete("/todos/:todoId/", async (request, response) => {
   const { todoId } = request.params;
   const deleteQuery = `
